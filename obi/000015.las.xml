@@ -1,0 +1,37 @@
+
+<?xml version="1.0" encoding="utf-8"?>
+<Pipeline version="1.0">
+ <Writer type="writers.oci">
+   <Option name="debug">false</Option>
+   <Option name="verbose">1</Option>
+   <Option name="connection">XUEFENG/Guan@//pakhuis.tudelft.nl:1521/pctest</Option>
+   <Option name="base_table_name">AHN_BASE</Option>
+   <Option name="block_table_name">AHN_BLCK</Option>
+   <Option name="compression">false</Option>
+   <Option name="store_dimensional_orientation">false</Option>
+   <Option name="cloud_column_name">pc</Option>
+   <Option name="is3d">false</Option>
+   <Option name="solid">false</Option>
+   <Option name="overwrite">false</Option>
+   <Option name="disable_cloud_trigger">true</Option>
+   <Option name="srid">4269</Option>
+   <Option name="create_index">false</Option>
+   <Option name="capacity">10000</Option>
+   <Option name="stream_output_precision">8</Option>
+   <Option name="pack_ignored_fields">true</Option>
+   <Option name="output_dims">X,Y,Z</Option>
+   <Option name="offset_x">526741.11</Option>
+   <Option name="offset_y">4333601.21</Option>
+   <Option name="offset_z">302.15</Option>
+   <Option name="scale_x">4.65656631e-07</Option>
+   <Option name="scale_y">4.65656631e-07</Option>
+   <Option name="scale_z">6.6063367e-08</Option>
+   <Filter type="filters.chipper">
+     <Option name="capacity">10000</Option>
+     <Reader type="readers.las">
+       <Option name="filename">/home/kwan/Downloads/data/000015.las</Option>
+       <Option name="spatialreference">EPSG:</Option>
+     </Reader>
+   </Filter>            
+ </Writer>
+</Pipeline>      

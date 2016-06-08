@@ -1,0 +1,8 @@
+  initialize: 0.15 
+    /u01/app/oracle/product/11.2.0/xe/rdbms/xml/000024.las: 1.77 
+  close: 2.92 
+total: 4.98 
+ Size indexes= 110.07 MB. Size excluding indexes= -96.07 MB. Size total= 14.00 MB
+Total Num. points: 388644
+Avg. CPU: 220.16. Avg. Memory: 
+27.70

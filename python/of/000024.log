@@ -1,0 +1,52 @@
+
+SQL*Loader: Release 11.2.0.2.0 - Production on Tue Jun 7 11:36:43 2016
+
+Copyright (c) 1982, 2009, Oracle and/or its affiliates.  All rights reserved.
+
+Control File:   000024.ctl
+Data File:      -.dat
+  Bad File:     000024.bad
+  Discard File:  none specified
+ 
+ (Allow all discards)
+
+Number to load: ALL
+Number to skip: 0
+Errors allowed: 50
+Continuation:    none specified
+Path used:      Direct
+
+Table AHN_FLAT5, loaded from every logical record.
+Insert option in effect for this table: APPEND
+
+   Column Name                  Position   Len  Term Encl Datatype
+------------------------------ ---------- ----- ---- ---- ---------------------
+VAL_D1                              FIRST    50   ,       CHARACTER            
+VAL_D2                               NEXT    50   ,       CHARACTER            
+VAL_D3                               NEXT    48   ,       CHARACTER            
+VAL_D4                               NEXT    60   ,       CHARACTER            
+
+
+Table AHN_FLAT5:
+  388644 Rows successfully loaded.
+  0 Rows not loaded due to data errors.
+  0 Rows not loaded because all WHEN clauses were failed.
+  0 Rows not loaded because all fields were null.
+
+Bind array size not used in direct path.
+Column array  rows :    5000
+Stream buffer bytes:  256000
+Read   buffer bytes: 1048576
+
+Total logical records skipped:          0
+Total logical records read:        388644
+Total logical records rejected:         0
+Total logical records discarded:        0
+Total stream buffers loaded by SQL*Loader main thread:      108
+Total stream buffers loaded by SQL*Loader load thread:        0
+
+Run began on Tue Jun 07 11:36:43 2016
+Run ended on Tue Jun 07 11:36:45 2016
+
+Elapsed time was:     00:00:02.08
+CPU time was:         00:00:00.35

@@ -12,9 +12,9 @@ class Loader(AbstractLoader):
         if self.cUser:
             self.createUser()
         
-        # Get the point cloud folder description
+        # Get the point cloud folder descriptionnumProc = self.numProcessesLoad
         logging.info('Getting files, extent, scale and SRID from input folder ' + self.inputFolder)
-        (self.inputFiles, _, _, _, boundingCube, scales) = lasops.getPCFolderDetails(self.inputFolder, numProc = self.numProcessesLoad)
+        (self.inputFiles, _, _, _, boundingCube, scales) = lasops.getPCFolderDetails(self.inputFolder, 1)
         (self.minX, self.minY, _, self.maxX, self.maxY, _) = boundingCube
         (self.scaleX, self.scaleY, _) = scales
         
@@ -25,6 +25,10 @@ class Loader(AbstractLoader):
         # Create the flat table
         self.createFlatTable(cursor, self.flatTable, self.tableSpace, self.columns)
         self.createFlatMeta(cursor, self.metaTable)
+
+        #added by guanxuefeng
+        #self.createIOTTable(cursor,  self.flatTable + "_iot", self.flatTable, self.tableSpace, self.columns, self.columns, self.index, 1)
+
         connection.close()
         
     def process(self):

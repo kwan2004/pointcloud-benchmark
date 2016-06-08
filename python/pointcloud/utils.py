@@ -17,7 +17,7 @@ DEFAULT_TIMEFORMAT = "%Y/%m/%d/%H:%M:%S"
 PC_FILE_FORMATS = ['las','laz','LAS', 'LAZ']
 
 # This is the dimension names that are accepted in the ini files for all loaders and XML of the queries
-PC_DIMENSIONS = ['x','y','z','X','Y','Z','i','r','n','d','e','c','a','u','p','R','G','B','t','k']
+PC_DIMENSIONS = ['x','y','z','X','Y','Z','i','r','n','d','e','c','a','u','p','R','G','B','t','k','s','l']
 
 def checkDimensionMapping(dimMap):
     for d in PC_DIMENSIONS:
@@ -44,9 +44,11 @@ PC_DIMENSIONS_DESCR = {
     'G': 'green channel of RGB color',
     'B': 'blue channel of RGB color',
     't': 'GPS time',
-    'k': 'Morton code 2D'}
+    'k': 'Morton code 2D',
+    's': 'sfc code',
+    'l': 'lod'}
 
-checkDimensionMapping(PC_DIMENSIONS_DESCR)
+checkDimensionMapping( PC_DIMENSIONS_DESCR)
 
 PCOLORS = [(0.0, 0.0, 1.0), (0.0, 1.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.75, 0.75), 
            (0.75, 0.0, 0.75), (0.75, 0.75, 0.0), (0.0, 1.0, 1.0),

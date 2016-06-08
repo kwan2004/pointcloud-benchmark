@@ -26,6 +26,11 @@ def OracleWriter(xmlFile, inputFileAbsPath, connectionString, dimensionsNames, b
     output_dims = ''
     if dimensionsNames != None:
         output_dims = '<Option name="output_dims">' + ','.join(dimensionsNames) + '</Option>'
+    strsrid = ''
+    if srid == '':
+        strsrid =  '4269'
+    else:
+        strsrid = str(srid)
     
     xmlContent = """
 <?xml version="1.0" encoding="utf-8"?>
@@ -43,7 +48,7 @@ def OracleWriter(xmlFile, inputFileAbsPath, connectionString, dimensionsNames, b
    <Option name="solid">false</Option>
    <Option name="overwrite">false</Option>
    <Option name="disable_cloud_trigger">true</Option>
-   <Option name="srid">""" + str(srid) + """</Option>
+   <Option name="srid">""" + strsrid + """</Option>
    <Option name="create_index">false</Option>
    <Option name="capacity">""" + str(blockSize) + """</Option>
    <Option name="stream_output_precision">8</Option>

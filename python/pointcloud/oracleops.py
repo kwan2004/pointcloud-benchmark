@@ -37,7 +37,7 @@ def createDirectory(cursorSuper, directoryVariableName, directoryAbsPath, userNa
         cursorSuper.execute("drop directory " + directoryVariableName)
         cursorSuper.connection.commit()
     cursorSuper.execute("create directory " + directoryVariableName + " as '" + directoryAbsPath + "'")
-    cursorSuper.execute("grant read on directory " + directoryVariableName + " to " + userName)
+#    cursorSuper.execute("grant read on directory " + directoryVariableName + " to " + userName)
     cursorSuper.connection.commit()
 
 def mogrify(cursor, query, queryArgs = None):

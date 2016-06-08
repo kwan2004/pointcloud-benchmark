@@ -108,7 +108,9 @@ class CommonOracle():
             'B': 'NUMBER',
             't': 'NUMBER',
             'k': 'NUMBER',
-            'h': 'NUMBER' # Extra dimension for the Hibert code
+            'h': 'NUMBER', # Extra dimension for the Hibert code
+            's': 'VARCHAR2(16)',
+            'l': 'NUMBER'
         }
         utils.checkDimensionMapping(self.DM_FLAT)
         
@@ -132,7 +134,9 @@ class CommonOracle():
             'G': 'G',
             'B': 'B',
             't': 't',
-            'k': 'k'
+            'k': 'k',
+            's': 's',
+            'l': 'l'
         }
         utils.checkDimensionMapping(self.DM_LAS2TXT)
         
@@ -156,7 +160,9 @@ class CommonOracle():
             'G': ('integer', 5),
             'B': ('integer', 5),
             't': ('float', 10),
-            'k': ('integer', 20)
+            'k': ('integer', 20),
+            's': ('integer', 20),
+            'l': ('integer', 10)
         }
         utils.checkDimensionMapping(self.DM_SQLLDR)
         
@@ -180,7 +186,9 @@ class CommonOracle():
             'G': 'Green',
             'B': 'Blue',
             't': 'Time',
-            'k': None
+            'k': None,
+            's': None,
+            'l': None
         }
         utils.checkDimensionMapping(self.DM_PDAL)
     

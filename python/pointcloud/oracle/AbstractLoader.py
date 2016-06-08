@@ -85,8 +85,10 @@ CREATE TABLE """ + baseTable + """ (pc sdo_pc) """ +  self.getTableSpaceString(t
             column = columns[i]
             if column not in self.DM_LAS2TXT or column not in self.DM_SQLLDR:
                 raise Exception('Wrong column! ' + column)
-            sqlldrCols.append(self.getDBColumn(columns, i)[0] + ' ' + self.DM_SQLLDR[column][0] + ' external(' + str(self.DM_SQLLDR[column][1]) + ')')
-        
+            sqlldrCols.append(self.getDBColumn(columns, i)[0] + ' ' + self.DM_SQLLDR[column][0] + ' external(' + str(self.DM_SQLLDR[column][1] + 40) + ')')
+
+#            sqlldrCols.append(self.getDBColumn(columns, i)[0] + ' ' + self.DM_SQLLDR[column][0] + ' ')
+
         ctfile.write("""load data
 append into table """ + tableName + """
 fields terminated by ','
@@ -100,8 +102,11 @@ fields terminated by ','
             
         ctfile.close()
         las2txtCommand = 'las2txt -i ' + fileAbsPath + ' -stdout -parse ' + ''.join(l2tCols) + ' -sep comma'
+        #las2txtCommand = 'las2ora2 -i ' + fileAbsPath + ' -stdout -parse ' + ''.join(l2tCols) + ' -key H3 -sep comma'
+        logging.info(las2txtCommand)
+
         sqlLoaderCommand = "sqlldr " + self.getConnectionString() + " direct=true control=" + controlFile + " data=\\'-\\' bad=" + badFile + " log=" + logFile
-        command = las2txtCommand + " | " + sqlLoaderCommand
+        command = las2txtCommand + " | " + "SFCGen -p 1 -s 1 -e 2" + " | " + sqlLoaderCommand
         logging.debug(command)
         os.system(command)
         
@@ -147,6 +152,8 @@ END;
         
     def createExternalTable(self, cursor, lasFiles, tableName, columns, lasDirVariableName, numProcesses):
         # Executes the external table setting it to use hilbert_prep.sh script (which must be located in the EXE_DIR Oracle directory)
+        #    badfile LOG_DIR:'hilbert_prep_%p.bad'EXE_DIR:
+#    logfile LOG_DIR:'hilbert_prep_%p.log'""" + lasFiles + """
         oracleops.dropTable(cursor, tableName, True)
         oracleops.mogrifyExecute(cursor, """
 CREATE TABLE """ + tableName + """ (""" + (',\n'.join(self.getDBColumns(columns, True))) + """)
@@ -156,11 +163,9 @@ type oracle_loader
 default directory """ + lasDirVariableName + """
 access parameters (
     records delimited by newline
-    preprocessor EXE_DIR:'hilbert_prep.sh'
-    badfile LOG_DIR:'hilbert_prep_%p.bad'
-    logfile LOG_DIR:'hilbert_prep_%p.log'
+    preprocessor 'hilbert_prep.sh'
     fields terminated by ',')
-location ('""" + lasFiles + """')
+location ('000024.las')
 )
 """ + self.getParallelString(numProcesses) + """ reject limit 0""")     
         
@@ -217,9 +222,16 @@ END;
         self.updateBlocksSRID(cursor, blockTable, srid)
         
     def createBlockIndex(self, cursor, srid, minX, minY, maxX, maxY, blockTable, indexTableSpace, workTableSpace, numProcesses):
+
+        strsrid = ''
+        if srid == '':
+            strsrid =  '4269'
+        else:
+            strsrid = str(srid)
+
         oracleops.mogrifyExecute(cursor,"""insert into USER_SDO_GEOM_METADATA values ('""" + blockTable + """','BLK_EXTENT',
 sdo_dim_array(sdo_dim_element('X',""" + str(minX) + """,""" + str(maxX) + """,""" + str(self.tolerance) + """),
-              sdo_dim_element('Y',""" + str(minY) + """,""" + str(maxY) + """,""" + str(self.tolerance) + """)),""" + str(srid) + """)""")
+              sdo_dim_element('Y',""" + str(minY) + """,""" + str(maxY) + """,""" + str(self.tolerance) + """)),""" + strsrid + """)""")
 
         oracleops.mogrifyExecute(cursor,"""create index """ + blockTable + """_SIDX on """ + blockTable + """ (blk_extent) indextype is mdsys.spatial_index
 parameters ('tablespace=""" + indexTableSpace + """ work_tablespace=""" + workTableSpace + """ layer_gtype=polygon sdo_indx_dims=2 sdo_rtr_pctfree=0')""" + self.getParallelString(numProcesses))

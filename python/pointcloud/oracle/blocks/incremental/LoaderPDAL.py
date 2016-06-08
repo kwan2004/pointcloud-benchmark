@@ -10,8 +10,8 @@ from pointcloud import lasops, pdalops, utils
 class LoaderPDAL(AbstractLoader):
     def initialize(self):
         # Creates the user that will store the tables
-        if self.cUser:
-            self.createUser()
+        #if self.cUser:
+        #    self.createUser()
         
         # Get the point cloud folder description
         logging.info('Getting files, extent and SRID from input folder ' + self.inputFolder)

@@ -36,7 +36,7 @@ class Loader(AbstractLoader):
         return self.processSingle(self.inputFiles, self.loadFromFile)
     
     def loadFromFile(self,  index, fileAbsPath):
-        self.las2txt_sqlldr(fileAbsPath, self.flatTable, self.columns)
+        self.las2txt_sqlldr(fileAbsPath, self.flatTable, self.columns, self.inputFolder)
 
     def close(self):
         connection = self.getConnection()

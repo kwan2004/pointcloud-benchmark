@@ -73,7 +73,7 @@ CREATE TABLE """ + baseTable + """ (id number, pc sdo_pc) """ +  self.getTableSp
                 oracleops.mogrifyExecute(cursor,"""
 CREATE TABLE """ + baseTable + """ (pc sdo_pc) """ +  self.getTableSpaceString(tableSpace) + """ pctfree 0 nologging""")  
          
-    def las2txt_sqlldr(self, fileAbsPath, tableName, columns):
+    def las2txt_sqlldr(self, fileAbsPath, tableName, columns, folderpath):
         commonFile = os.path.basename(fileAbsPath).replace(fileAbsPath.split('.')[-1],'')
         controlFile = commonFile + 'ctl'
         badFile = commonFile + 'bad'
@@ -106,7 +106,7 @@ fields terminated by ','
         logging.info(las2txtCommand)
 
         sqlLoaderCommand = "sqlldr " + self.getConnectionString() + " direct=true control=" + controlFile + " data=\\'-\\' bad=" + badFile + " log=" + logFile
-        command = las2txtCommand + " | " + "SFCGen -p 1 -s 1 -e 2" + " | " + sqlLoaderCommand
+        command = las2txtCommand + " | " + "SFCGen -p 0 -s 1 -e 2 -t " + folderpath + "/ct.txt " + " | " + sqlLoaderCommand
         logging.debug(command)
         os.system(command)
         
@@ -167,7 +167,14 @@ access parameters (
     fields terminated by ',')
 location ('000024.las')
 )
-""" + self.getParallelString(numProcesses) + """ reject limit 0""")     
+""" + self.getParallelString(numProcesses) + """ reject limit 0""")
+
+    def getKeyColumns(self, keycolumns, icolumns, includeType = False, hilbertColumnName = 'd'):
+        cols = []
+        for i in range(len(keycolumns)):
+            n = icolumns.find(keycolumns[i])
+            cols.append(' '.join(self.getDBColumn(icolumns, n, includeType, hilbertColumnName)))
+        return cols
         
     def createIOTTable(self, cursor, iotTableName, tableName, tableSpace, icolumns, ocolumns, keycolumns, numProcesses, check = False, hilbertFactor = None):
         """ Create Index-Organized-Table and populate it from tableName Table"""
@@ -178,7 +185,7 @@ location ('000024.las')
         
         icols = self.getDBColumns(icolumns,False, hilbertColumnName)
         ocols = self.getDBColumns(ocolumns,False)
-        kcols = self.getDBColumns(keycolumns,False)
+        kcols = self.getKeyColumns(keycolumns,icolumns, False)
         
         oracleops.mogrifyExecute(cursor, """
 CREATE TABLE """ + iotTableName + """

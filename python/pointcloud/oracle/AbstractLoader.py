@@ -101,12 +101,12 @@ fields terminated by ','
             l2tCols.append(self.DM_LAS2TXT[c])
             
         ctfile.close()
-        las2txtCommand = 'las2txt -i ' + fileAbsPath + ' -stdout -parse ' + ''.join(l2tCols) + ' -sep comma'
+        las2txtCommand = 'las2txt -i ' + fileAbsPath + ' -stdout -parse xyz' + ' -sep comma' # + ''.join(l2tCols)
         #las2txtCommand = 'las2ora2 -i ' + fileAbsPath + ' -stdout -parse ' + ''.join(l2tCols) + ' -key H3 -sep comma'
         logging.info(las2txtCommand)
 
         sqlLoaderCommand = "sqlldr " + self.getConnectionString() + " direct=true control=" + controlFile + " data=\\'-\\' bad=" + badFile + " log=" + logFile
-        command = las2txtCommand + " | " + "SFCGen -p 0 -s 1 -e 2 -t " + folderpath + "/ct.txt " + " | " + sqlLoaderCommand
+        command = las2txtCommand + " | " + "SFCGen -p 0 -s 1 -e 2 -t " + folderpath + "/ct.txt -l 10 -onlysfc " + " | " + sqlLoaderCommand
         logging.debug(command)
         os.system(command)
         
@@ -195,7 +195,7 @@ CREATE TABLE """ + iotTableName + """
     """ + self.getTableSpaceString(tableSpace) + """ pctfree 0 nologging
     """ + self.getParallelString(numProcesses) + """
 as
-    SELECT """ + (','.join(icols)) + """ FROM """ + tableName)
+    SELECT DISTINCT """ + (','.join(icols)) + """ FROM """ + tableName)
     
     def populateBlocksHilbert(self, cursor, srid, minX, minY, maxX, maxY, flatTable, blockTable, baseTable, blockSize, tolerance):
         # NOTE: In this case we do not require to create a view, since the fixed format by the hilbert pre-processor makes it directly compatible

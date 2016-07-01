@@ -28,8 +28,15 @@ class Querier(AbstractQuerier):
         connection = self.getConnection()
         cursor = connection.cursor()
     
-        self.prepareQuery(cursor, queryId, queriesParameters, iterationId == 0)
-        oracleops.dropTable(cursor, self.resultTable, True) 
+        self.prepareQuery(cursor, queryId, queriesParameters,  False)#iterationId == 0,
+        oracleops.dropTable(cursor, self.resultTable, True)
+
+        range_table_name = "range_" + queryId
+
+        oracleops.dropTable(cursor, range_table_name, True)
+        rangetable_sql =  "CREATE TABLE " + range_table_name + " (K1 NUMBER PRIMARY KEY, K2 NUMBER)"
+        cursor.execute(rangetable_sql)
+        logging.info(rangetable_sql)
 
         if self.numProcessesQuery > 1 and self.parallelType != 'nati': 
             if self.qp.queryType in ('rectangle','circle','generic') :
@@ -39,7 +46,11 @@ class Querier(AbstractQuerier):
                  return (eTime, result)
                          
         t0 = time.time()
-        (query, _) = dbops.getSelect(self.qp, self.flatTable, self.addContainsCondition, self.colsDict, self.getParallelHint())
+        connstring = self.getConnectionString()
+
+#        (query, _) = dbops.getSelect(self.qp, self.flatTable, self.addContainsCondition, self.colsDict, self.getParallelHint())
+        (query, _) = dbops.getSelect2(self.qp, queryId, self.flatTable, self.addContainsCondition, self.colsDict, range_table_name, connstring, self.getParallelHint() )
+
         if self.qp.queryMethod != 'stream': # disk or stat
             oracleops.mogrifyExecute(cursor, "CREATE TABLE "  + self.resultTable + " AS " + query)
             (eTime, result) = dbops.getResult(cursor, t0, self.resultTable, self.colsDict, True, self.qp.columns, self.qp.statistics)

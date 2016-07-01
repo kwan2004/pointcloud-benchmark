@@ -3,6 +3,7 @@
 #    Created by Oscar Martinez                                                 #
 #    o.rubi@esciencecenter.nl                                                  #
 ################################################################################
+import os, logging
 import time, multiprocessing,numpy
 from pointcloud import utils 
 
@@ -196,6 +197,77 @@ def getSelect(queryParameters, flatTable, addContainsConditionMethod, columnsNam
     else:
         raise Exception('ERROR: ' + queryParameters.queryType + ' not supported!')
     
+    return (query, queryArgs)
+
+def getSelect2(queryParameters,queryId, flatTable, addContainsConditionMethod, columnsNameDict, ranges_name, connstring, hints = None):
+    queryArgs = []
+    xname = columnsNameDict['x'][0]
+    yname = columnsNameDict['y'][0]
+    zname = columnsNameDict['z'][0]
+    lname = columnsNameDict['l'][0]
+    sname = columnsNameDict['s'][0]
+
+    if queryParameters.queryType in ('rectangle', 'generic'):
+        bBoxCondition = addBBoxCondition(queryParameters, xname, yname, queryArgs)
+
+        commonFile = str(queryId) #os.path.basename(queryArgs).replace(queryArgs.split('.')[-1],'')
+
+        controlFile = commonFile + '.ctl'
+        badFile = commonFile + '.bad'
+        logFile = commonFile + '.log'
+
+        ctfile = open(controlFile, 'w')
+        ctfile.write("""load data
+append into table """ + ranges_name + """
+fields terminated by ','
+(K1, K2)
+""")
+
+        ctfile.close()
+
+        #sfcFileName = str(queryId) + '.sfc'
+
+        strfilter = "{:.4f}".format(queryParameters.minx)+"/"+"{:.4f}".format(queryParameters.maxx)+"/"+"{:.4f}".format(queryParameters.miny)+"/"+"{:.4f}".format(queryParameters.maxy)+"/"+"{:.4f}".format(queryParameters.minz)+"/"+"{:.4f}".format(queryParameters.maxz)+"/"+"{:.4f}".format(queryParameters.minl)+"/"+"{:.4f}".format(queryParameters.maxl)
+
+        sfc_command = 'SFCQuery -i ' + strfilter + ' -s 1 -e 0 -n 1000 -t ' + queryParameters.ctfile
+
+        sqlLoaderCommand = "sqlldr " + connstring + " direct=true control=" + controlFile + " data=\\'-\\' bad=" + badFile + " log=" + logFile
+
+        command = sfc_command + " | " + sqlLoaderCommand
+        logging.debug(command)
+        os.system(command)
+    else:
+        bBoxCondition = addBBoxCircleCondition(queryParameters, xname, yname, queryArgs)
+    zCondition = addZCondition(queryParameters, zname, queryArgs)
+    cols = getSelectCols(queryParameters.columns, columnsNameDict, queryParameters.statistics)
+
+    if hints == None:
+        hints = ''
+    if queryParameters.queryType == 'rectangle':
+#        query = "SELECT " + hints + cols + " FROM " + flatTable + getWhereStatement([bBoxCondition,zCondition])
+        query = "SELECT t.* FROM "+ flatTable + " t, "+ ranges_name + " r WHERE t." + sname +" BETWEEN r.K1 AND r.K2";
+    elif queryParameters.queryType == 'circle':
+        specificCondition = addCircleCondition(queryParameters, xname, yname, queryArgs)
+        query = "SELECT "  + cols + " FROM (select " + hints + "* FROM " + flatTable  + getWhereStatement([bBoxCondition,zCondition]) + ") b " + getWhereStatement(specificCondition)
+    elif queryParameters.queryType == 'generic':
+        (queryTable, specificCondition) = addContainsConditionMethod(queryParameters, queryArgs, xname, yname)
+        if queryParameters.db != 'ora':
+            tables = ['ftf']
+            if queryTable != None:
+                tables.append(queryTable)
+            query = "SELECT " + cols + " FROM ( SELECT * FROM " + flatTable + getWhereStatement([bBoxCondition,zCondition]) + ") " + ",".join(tables) + getWhereStatement(specificCondition)
+        else:
+            query = "SELECT " + cols + " from table ( sdo_PointInPolygon ( cursor ( select " + hints + "* FROM " + flatTable + getWhereStatement([bBoxCondition,zCondition]) + " ), " + specificCondition + "))"
+    elif queryParameters.queryType == 'nn' :
+        orderBy = addOrderByDistance(queryParameters, xname, yname, queryArgs)
+        limit = addLimit(queryParameters, queryArgs)
+        if queryParameters.db != 'ora':
+            query = "SELECT " + cols + " FROM " + flatTable + getWhereStatement([bBoxCondition,zCondition]) + orderBy + limit
+        else:
+            query = "SELECT "  + cols + " FROM (SELECT " + hints + "* FROM " + flatTable + getWhereStatement([bBoxCondition,zCondition]) + " ) b " + limit + orderBy
+    else:
+        raise Exception('ERROR: ' + queryParameters.queryType + ' not supported!')
+
     return (query, queryArgs)
 
 def getSelectMorton(iMortonRanges, xMortonRanges, queryParameters, flatTable, addContainsConditionMethod, columnsNameDict, hints = None):

@@ -85,9 +85,9 @@ CREATE TABLE """ + baseTable + """ (pc sdo_pc) """ +  self.getTableSpaceString(t
             column = columns[i]
             if column not in self.DM_LAS2TXT or column not in self.DM_SQLLDR:
                 raise Exception('Wrong column! ' + column)
-            sqlldrCols.append(self.getDBColumn(columns, i)[0] + ' ' + self.DM_SQLLDR[column][0] + ' external(' + str(self.DM_SQLLDR[column][1] + 40) + ')')
+#            sqlldrCols.append(self.getDBColumn(columns, i)[0] + ' ' + self.DM_SQLLDR[column][0] + ' external(' + str(self.DM_SQLLDR[column][1] + 40) + ')')
 
-#            sqlldrCols.append(self.getDBColumn(columns, i)[0] + ' ' + self.DM_SQLLDR[column][0] + ' ')
+            sqlldrCols.append(self.getDBColumn(columns, i)[0]) #+ ' ' + self.DM_SQLLDR[column][0] + ' '
 
         ctfile.write("""load data
 append into table """ + tableName + """
@@ -106,7 +106,7 @@ fields terminated by ','
         logging.info(las2txtCommand)
 
         sqlLoaderCommand = "sqlldr " + self.getConnectionString() + " direct=true control=" + controlFile + " data=\\'-\\' bad=" + badFile + " log=" + logFile
-        command = las2txtCommand + " | " + "SFCGen -p 0 -s 1 -e 2 -t " + folderpath + "/ct.txt -l 10 -onlysfc " + " | " + sqlLoaderCommand
+        command = las2txtCommand + " | " + "SFCGen -p 0 -s 1 -e 0 -t " + folderpath + "/ct.txt -l 10" + " | " + sqlLoaderCommand
         logging.debug(command)
         os.system(command)
         

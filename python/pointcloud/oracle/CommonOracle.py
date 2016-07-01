@@ -109,7 +109,7 @@ class CommonOracle():
             't': 'NUMBER',
             'k': 'NUMBER',
             'h': 'NUMBER', # Extra dimension for the Hibert code
-            's': 'VARCHAR2(16)',
+            's': 'NUMBER', #VARCHAR2(16)
             'l': 'NUMBER'
         }
         utils.checkDimensionMapping(self.DM_FLAT)
@@ -162,7 +162,7 @@ class CommonOracle():
             't': ('float', 10),
             'k': ('integer', 20),
             's': ('integer', 20),
-            'l': ('integer', 10)
+            'l': ('float', 10)
         }
         utils.checkDimensionMapping(self.DM_SQLLDR)
         

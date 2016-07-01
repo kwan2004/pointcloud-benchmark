@@ -68,6 +68,22 @@ class QueriesParameters:
         if m.text != None:
             rm = float(m.text)
         return rm
+
+    def getMinL(self, query):
+        """ Get min z, this will only be available in rectangle+z"""
+        m = query.find('minl')
+        rm = None
+        if m.text != None:
+            rm = float(m.text)
+        return rm
+
+    def getMaxL(self, query):
+        """ Get Buffer, this will only be available in rectangle+z"""
+        m = query.find('maxl')
+        rm = None
+        if m.text != None:
+            rm = float(m.text)
+        return rm
     
     def getNum(self, query):
         """ Get number, this will only be available in nn (nearest neighbour)"""
@@ -84,6 +100,10 @@ class QueriesParameters:
     def getColumns(self, query):
         """ Get columns"""
         return query.find('columns').text
+
+    def getCTfile(self, query):
+        """ Get columns"""
+        return query.find('ctfile').text
     
     def getQueryParameters(self, db, queryId):
         query = self.getQuery(queryId)
@@ -126,3 +146,53 @@ class QueriesParameters:
             nnrad = self.getRadius(query)
             
         return QueryParameters(db,queryKey,queryMethod,queryType,wkt,columns,statistics,minx,maxx,miny,maxy,cx,cy,rad,minz,maxz,px,py,nnnum,nnrad)
+
+    def getQueryParameters2(self, db, queryId):
+        query = self.getQuery(queryId)
+
+        queryKey = self.getKey(query)
+        queryMethod = self.getMethod(query)
+        queryType = self.getType(query)
+        wkt = self.getWKT(query)
+
+        ctfile = self.getCTfile(query)
+
+        columns = self.getColumns(query)
+        for column in columns:
+            if column not in utils.PC_DIMENSIONS:
+                raise Exception('Error: column ' + column)
+
+        (minx,maxx,miny,maxy) = (None,None,None,None)
+        (cx,cy,rad) = (None,None,None)
+        (minz,maxz) = (None, None)
+        (px,py,nnnum,nnrad) = (None,None,None,None)
+        statistics = None
+        (minl,maxl) = (None, None)
+
+        if queryMethod == 'stat':
+            statistics = self.getStatistics(query)
+            if len(statistics) != len(columns):
+                raise Exception('Error in query parameters: columns and statistics must have same length')
+
+        if queryType.find('+z'):#endswith
+            queryType = queryType.replace('+z', '')
+            minz = self.getMinZ(query)
+            maxz = self.getMaxZ(query)
+
+        if queryType.find('+l'):#endswith
+            queryType = queryType.replace('+l', '')
+            minl = self.getMinL(query)
+            maxl = self.getMaxL(query)
+
+        if queryType != 'nn':
+            (mins, maxs) = wktops.wktPolygon2MinMax(wkt)
+            (minx,maxx,miny,maxy) = (mins[0],maxs[0],mins[1],maxs[1])
+            if queryType == 'circle' :
+                (center, rad) = wktops.wktPolygonToCenterRad(wkt)
+                (cx,cy,rad) = center[0], center[1], rad
+        else:
+            (px, py) = wktops.wktPointToCoordinates(wkt)
+            nnnum = self.getNum(query)
+            nnrad = self.getRadius(query)
+
+        return QueryParameters(db,queryKey,queryMethod,queryType,wkt,columns,statistics,minx,maxx,miny,maxy,cx,cy,rad,minz,maxz,px,py,nnnum,nnrad,minl,maxl,ctfile)

@@ -4,7 +4,7 @@
 #    o.rubi@esciencecenter.nl                                                  #
 ################################################################################
 import os, optparse, sys
-#sys.path.append("/home/kwan/PycharmProjects/pointcloud-benchmark/python/")
+sys.path.append("/home/kwan/PycharmProjects/pointcloud-benchmark/python/")
 
 from ConfigParser import ConfigParser
 from pointcloud import utils

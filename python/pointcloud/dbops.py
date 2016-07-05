@@ -245,7 +245,17 @@ fields terminated by ','
         hints = ''
     if queryParameters.queryType == 'rectangle':
 #        query = "SELECT " + hints + cols + " FROM " + flatTable + getWhereStatement([bBoxCondition,zCondition])
-        query = "SELECT t.* FROM "+ flatTable + " t, "+ ranges_name + " r WHERE t." + sname +" BETWEEN r.K1 AND r.K2";
+#        query = "SELECT t.* FROM "+ flatTable + " t, "+ ranges_name + " r WHERE t." + sname +" BETWEEN r.K1 AND r.K2";
+        query = """SELECT k.*
+  FROM (SELECT t.*
+          FROM  """+ flatTable + """ t,
+               (SELECT MIN(k1) AS r1,
+                       MAX(k2) AS r2
+                  FROM """ + ranges_name + """) r
+         WHERE t."""+sname+""" BETWEEN r.r1 AND r.r2) k,
+       """+ ranges_name + """ s
+ WHERE k.""" + sname + """  BETWEEN s.k1 AND s.k2"""
+
     elif queryParameters.queryType == 'circle':
         specificCondition = addCircleCondition(queryParameters, xname, yname, queryArgs)
         query = "SELECT "  + cols + " FROM (select " + hints + "* FROM " + flatTable  + getWhereStatement([bBoxCondition,zCondition]) + ") b " + getWhereStatement(specificCondition)

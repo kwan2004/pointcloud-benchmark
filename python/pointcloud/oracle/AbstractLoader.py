@@ -106,7 +106,7 @@ fields terminated by ','
         logging.info(las2txtCommand)
 
         sqlLoaderCommand = "sqlldr " + self.getConnectionString() + " direct=true control=" + controlFile + " data=\\'-\\' bad=" + badFile + " log=" + logFile
-        command = las2txtCommand + " | " + "SFCGen -p 0 -s 1 -e 0 -t " + folderpath + "/ct.txt -l 10" + " | " + sqlLoaderCommand
+        command = las2txtCommand + " | " + "SFCGen -p 1 -s 1 -e 0 -t " + folderpath + "/ct.txt -l 10" + " | " + sqlLoaderCommand
         logging.debug(command)
         os.system(command)
         

@@ -1,8 +1,8 @@
-  initialize: 0.20 
-    /u01/app/oracle/product/11.2.0/xe/rdbms/xml/ahn_bench000020.las: 198.91 
-  close: 148.89 
-total: 348.16 
- Size indexes= 791.66 MB. Size excluding indexes= 13.34 MB. Size total= 805.00 MB
+  initialize: 0.18 
+    /u01/app/oracle/product/11.2.0/xe/rdbms/xml/ahn_bench000020.las: 100.56 
+  close: 140.60 
+total: 241.48 
+ Size indexes= 791.67 MB. Size excluding indexes= 8.33 MB. Size total= 800.00 MB
 Total Num. points: 20165862
-Avg. CPU: 158.30. Avg. Memory: 
-29.76
+Avg. CPU: 183.62. Avg. Memory: 
+33.33
